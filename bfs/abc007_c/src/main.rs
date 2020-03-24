@@ -65,7 +65,53 @@ macro_rules! read_value {
 
 fn main() {
     input!{
-        n: i32
+        r: usize,
+        c: usize,
+        sy: usize,
+        sx: usize,
+        ey: usize,
+        ex: usize,
+        maps: [chars; r]
     }
-    println!("{}", n);
+    let zipcoord = |y: usize, x: usize| y*c+x;
+    let unzipcoord = |point: usize| (point/c, point%c);
+
+    let mut graph: Vec<Vec<usize>> = vec![vec![]; r * c];
+    for y in 0..r {
+        for x in 0..c {
+            if maps[y][x] == '#' {continue;}
+            let cp = zipcoord(y, x);
+
+            let mut movepoint: Vec<usize> = Vec::new();
+            if y != r-1 {movepoint.push(zipcoord(y+1, x))}
+            if x != c-1 {movepoint.push(zipcoord(y, x+1))}
+            for p in movepoint {
+                let (py, px) = unzipcoord(p);
+                if maps[py][px] == '#' {continue;}
+                graph[p].push(cp);
+                graph[cp].push(p);
+            }
+        }
+    }
+    let mut dist: Vec<i32> = vec![-1; r*c];
+    let mut que: VecDeque<usize> = VecDeque::new();
+    let sp = zipcoord(sy-1, sx-1);
+    let ep = zipcoord(ey-1, ex-1);
+    dist[sp] = 0;
+    que.push_back(sp);
+    while !que.is_empty() {
+        let p = match que.pop_front() {
+            Some(x) => x,
+            _ => 0
+        };
+        let moving = dist[p] + 1;
+        for point in &graph[p] {
+            if dist[*point] != -1 {continue; }
+            dist[*point] = moving;
+            que.push_back(*point);
+        }
+
+    }
+
+    println!("{}", dist[ep]);
 }
