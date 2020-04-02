@@ -81,7 +81,31 @@ macro_rules! read_value {
 
 fn main() {
     input!{
-        n: i32
+        n: usize,
+        m: usize,
+        switches: [[usize]; m],
+        lights: [usize; m]
     }
-    println!("{}", n);
+    let checkf = |x: usize, v: usize| { x % 2 == v };
+    let mut answer = 0;
+
+    for i in 0..1<<n {
+        let mut onlights = vec![0; m];
+        for k in 0..n {
+            if i & (1<<k) != 0 {
+                for si in 0..m {
+                    if switches[si].contains(&(k + 1)) {
+                        onlights[si] += 1;
+                    }
+                }
+            }
+        }
+        let flg = (0..m).map(|x| checkf(onlights[x], lights[x])).any(|x| !x);
+        if !flg {
+            answer += 1;
+        }
+
+    }
+
+    println!("{}", answer);
 }
