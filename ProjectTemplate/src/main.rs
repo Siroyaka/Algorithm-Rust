@@ -52,22 +52,22 @@ macro_rules! read_value {
     };
 
     ($next:expr, [ $t:tt ; $len:expr ]) => {
-        (0..$len).map(|_| read_value!($next, $t)).collect::<Vec<_>>()
+        (0..$len).map(|_| read_value!($next, $t)).collect::<vec<_>>()
     };
  
     ($next:expr, [ $t:tt ]) => {
         {
             let len = read_value!($next, usize);
-            (0..len).map(|_| read_value!($next, $t)).collect::<Vec<_>>()
+            (0..len).map(|_| read_value!($next, $t)).collect::<vec<_>>()
         }
     };
  
     ($next:expr, chars) => {
-        read_value!($next, String).chars().collect::<Vec<char>>()
+        read_value!($next, string).chars().collect::<vec<char>>()
     };
  
     ($next:expr, bytes) => {
-        read_value!($next, String).into_bytes()
+        read_value!($next, string).into_bytes()
     };
  
     ($next:expr, usize1) => {
@@ -75,13 +75,15 @@ macro_rules! read_value {
     };
  
     ($next:expr, $t:ty) => {
-        $next().parse::<$t>().expect("Parse error")
+        $next().parse::<$t>().expect("parse error")
     };
 }
 
 fn main() {
     input!{
-        n: i32
+        s: String,
+        n: usize
     }
+    println!("{}", s);
     println!("{}", n);
 }
