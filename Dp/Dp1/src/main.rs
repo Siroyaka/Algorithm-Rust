@@ -81,9 +81,17 @@ macro_rules! read_value {
 
 fn main() {
     input!{
-        s: String,
-        n: usize
+        n: usize,
+        v: [i32; n]
     }
-    println!("{}", s);
-    println!("{}", n);
+    let mut costs: Vec<i32> = vec![std::i32::MAX; n + 1];
+    costs[0] = 0;
+    for i in 1..n {
+        let costa = (v[i-1] - v[i]).abs() + costs[i - 1];
+        let costb =
+            if i < 2 {std::i32::MAX}
+            else {(v[i-2] - v[i]).abs() + costs[i - 2]};
+        costs[i] = cmp::min(costa, costb);
+    }
+    println!("{}", costs[n - 1]);
 }

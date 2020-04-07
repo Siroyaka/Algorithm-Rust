@@ -4,6 +4,8 @@ use std::collections::VecDeque;
 use std::cmp;
 #[allow(unused_imports)]
 use std::collections::HashMap;
+use std::cmp::Ordering;
+use std::collections::BinaryHeap;
 
 #[allow(unused_macros)]
 macro_rules! input {
@@ -63,11 +65,11 @@ macro_rules! read_value {
     };
  
     ($next:expr, chars) => {
-        read_value!($next, string).chars().collect::<Vec<char>>()
+        read_value!($next, String).chars().collect::<Vec<char>>()
     };
  
     ($next:expr, bytes) => {
-        read_value!($next, string).into_bytes()
+        read_value!($next, String).into_bytes()
     };
  
     ($next:expr, usize1) => {
@@ -75,15 +77,72 @@ macro_rules! read_value {
     };
  
     ($next:expr, $t:ty) => {
-        $next().parse::<$t>().expect("parse error")
+        $next().parse::<$t>().expect("Parse error")
     };
+}
+
+struct Edge {
+    cost: usize,
+    node: usize
+}
+
+#[derive(Copy, Clone, Eq, PartialEq)]
+struct State {
+    cost: usize,
+    position: usize
+}
+
+impl Ord for State {
+    fn cmp(&self, other: &State) -> Ordering {
+        other.cost.cmp(&self.cost).then_with(|| self.position.cmp(&other.position))
+    }
+}
+
+impl PartialOrd for State {
+    fn partial_cmp(&self, other: &State) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
 }
 
 fn main() {
     input!{
-        s: String,
-        n: usize
+        v: usize,
+        e: usize,
+        r: usize,
+        points: [(usize, usize, usize); e]
     }
-    println!("{}", s);
-    println!("{}", n);
+    let mut graph: Vec<Vec<Edge>> = Vec::new();
+    for _ in 0..v {
+        graph.push(Vec::new());
+    }
+    for (s, t, c) in points {
+        graph[s].push(Edge { cost: c, node: t});
+    }
+    let mut dist: Vec<_> = (0..v).map(|_| std::usize::MAX).collect();
+    let mut on: Vec<_> = (0..v).map(|_| false).collect();
+    dist[r] = 0;
+    on[r] = true;
+
+    let mut heep = BinaryHeap::new();
+    heep.push(State{cost: 0, position: r});
+    while let Some(s) = heep.pop() {
+        on[s.position] = true;
+        if s.cost > dist[s.position] {continue;}
+
+        for item in &graph[s.position] {
+            let next = State{cost: s.cost + item.cost, position: item.node};
+            if dist[item.node] > next.cost {
+                heep.push(next);
+                dist[item.node] = next.cost;
+            }
+        }
+
+    }
+    for i in 0..v {
+        if on[i] {
+            println!("{}", dist[i]);
+        } else {
+            println!("{}", "INF");
+        }
+    }
 }

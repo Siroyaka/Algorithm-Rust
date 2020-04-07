@@ -81,9 +81,17 @@ macro_rules! read_value {
 
 fn main() {
     input!{
-        s: String,
-        n: usize
+        n: usize,
+        k: usize,
+        v: [i32; n]
     }
-    println!("{}", s);
-    println!("{}", n);
+    let mut costs = vec![std::i32::MAX; 100010];
+    costs[0] = 0;
+    for i in 1..n {
+        let max_len = cmp::min(n, i+k);
+        for j in i..max_len {
+            costs[j] = cmp::min(costs[j], costs[i - 1] + (v[i - 1] - v[j]).abs());
+        }
+    }
+    println!("{}", costs[n - 1]);
 }

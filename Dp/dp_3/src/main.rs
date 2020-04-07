@@ -81,9 +81,21 @@ macro_rules! read_value {
 
 fn main() {
     input!{
-        s: String,
-        n: usize
+        n: usize,
+        v: [[i32; 3]; n]
     }
-    println!("{}", s);
-    println!("{}", n);
+    let mut values = vec![vec![0; 3]; n];
+    for i in 0..3 {
+        values[0][i] = v[0][i];
+    }
+    for i in 1..n {
+        for a in 0..3 {
+            for b in 0..3 {
+                if a == b {continue;}
+                values[i][a] = cmp::max(values[i][a], values[i - 1][b] + v[i][a])
+            }
+        }
+    }
+
+    println!("{}", values[n - 1].iter().max().unwrap());
 }
