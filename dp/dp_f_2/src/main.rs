@@ -81,9 +81,28 @@ macro_rules! read_value {
 
 fn main() {
     input!{
-        s: String,
-        n: usize
+        s: chars,
+        t: chars
     }
-    println!("{}", s);
-    println!("{}", n);
+    let (s_len, t_len) = (s.len(), t.len());
+    let mut dp = vec![vec![0; t_len + 1]; s_len + 1];
+    for si in 0..s_len {
+        for ti in 0..t_len {
+            dp[si+1][ti+1] = cmp::max(dp[si][ti] + (s[si] == t[ti]) as i64, cmp::max(dp[si+1][ti], dp[si][ti+1]));
+        }
+    }
+    let mut text = Vec::<char>::new();
+    let (mut s_len, mut t_len) = (s_len, t_len);
+    while s_len > 0 && t_len > 0 {
+        if dp[s_len][t_len] == dp[s_len-1][t_len] {
+            s_len -= 1;
+        } else if dp[s_len][t_len] == dp[s_len][t_len-1] {
+            t_len -= 1;
+        } else {
+            s_len -= 1;
+            t_len -= 1;
+            text.push(s[s_len]);
+        }
+    }
+    println!("{}", text.into_iter().rev().collect::<String>());
 }

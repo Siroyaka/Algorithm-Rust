@@ -81,9 +81,30 @@ macro_rules! read_value {
 
 fn main() {
     input!{
-        s: String,
-        n: usize
+        n: usize,
+        m: usize,
+        g: [(usize, usize); m]
     }
-    println!("{}", s);
-    println!("{}", n);
+    let mut graph: Vec<Vec<usize>> = vec![vec![]; n];
+    let mut in_degree: Vec<usize> = vec![0; n];
+    for (f, t) in g {
+        graph[f-1].push(t-1);
+        in_degree[t-1] += 1;
+    }
+    let mut graph_len: Vec<usize> = vec![0; n];
+    let mut queue: VecDeque<usize> = VecDeque::new();
+    for i in 0..n {
+        if in_degree[i] == 0 {queue.push_front(i);}
+    }
+    let mut path_len = 0;
+    while let Some(p) = queue.pop_back() {
+        let nx_len = graph_len[p] + 1;
+        path_len = cmp::max(path_len, graph_len[p]);
+        for &i in &graph[p] {
+            graph_len[i] = cmp::max(graph_len[i], nx_len);
+            in_degree[i] -= 1;
+            if in_degree[i] == 0 {queue.push_front(i);}
+        }
+    }
+    println!("{}", path_len);
 }
